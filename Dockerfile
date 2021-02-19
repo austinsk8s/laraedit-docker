@@ -36,7 +36,7 @@ RUN echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale  && \
 
 # install nginx
 RUN apt-get install -y --force-yes nginx
-#COPY homestead /etc/nginx/sites-available/
+COPY homestead /etc/nginx/sites-available/
 RUN rm -rf /etc/nginx/sites-available/default && \
     rm -rf /etc/nginx/sites-enabled/default && \
     ln -fs "/etc/nginx/sites-available/homestead" "/etc/nginx/sites-enabled/homestead" && \
