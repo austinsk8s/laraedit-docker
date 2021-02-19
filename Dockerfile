@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:16.04
 MAINTAINER Derek Bourgeois <derek@ibourgeois.com>
 
 # set some environment variables
