@@ -1,5 +1,5 @@
-FROM ubuntu:16.04
-MAINTAINER Derek Bourgeois <derek@ibourgeois.com>
+FROM ubuntu:14.04
+MAINTAINER Austin Williams <rawebtechstack@gmail.com>
 
 # set some environment variables
 ENV APP_NAME app
@@ -25,6 +25,7 @@ RUN apt-add-repository ppa:nginx/stable -y && \
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
     sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" >> /etc/apt/sources.list.d/postgresql.list' && \
     curl -s https://packagecloud.io/gpg.key | apt-key add - && \
+    echo "deb http://packages.blackfire.io/debian any main" | tee /etc/apt/sources.list.d/blackfire.list && \
     curl --silent --location https://deb.nodesource.com/setup_5.x | bash - && \
     apt-get update
 
@@ -32,13 +33,10 @@ RUN apt-add-repository ppa:nginx/stable -y && \
 RUN echo "LC_ALL=en_US.UTF-8" >> /etc/default/locale  && \
     locale-gen en_US.UTF-8  && \
     ln -sf /usr/share/zoneinfo/UTC /etc/localtime
-    
-# setup bash
-COPY .bash_aliases /root
 
 # install nginx
 RUN apt-get install -y --force-yes nginx
-COPY homestead /etc/nginx/sites-available/
+#COPY homestead /etc/nginx/sites-available/
 RUN rm -rf /etc/nginx/sites-available/default && \
     rm -rf /etc/nginx/sites-enabled/default && \
     ln -fs "/etc/nginx/sites-available/homestead" "/etc/nginx/sites-enabled/homestead" && \
@@ -79,10 +77,10 @@ COPY fastcgi_params /etc/nginx/
 RUN phpenmod mcrypt && \
     mkdir -p /run/php/ && chown -Rf www-data.www-data /run/php
 
-# install sqlite 
+# install sqlite
 RUN apt-get install -y sqlite3 libsqlite3-dev
 
-# install mysql 
+# install mysql
 RUN echo mysql-server mysql-server/root_password password $DB_PASS | debconf-set-selections;\
     echo mysql-server mysql-server/root_password_again password $DB_PASS | debconf-set-selections;\
     apt-get install -y mysql-server && \
@@ -97,7 +95,7 @@ VOLUME ["/var/lib/mysql"]
 RUN curl -sS https://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer && \
     printf "\nPATH=\"~/.composer/vendor/bin:\$PATH\"\n" | tee -a ~/.bashrc
-    
+
 # install prestissimo
 # RUN composer global require "hirak/prestissimo"
 
@@ -116,7 +114,7 @@ RUN /usr/bin/npm install -g gulp
 # install bower
 RUN /usr/bin/npm install -g bower
 
-# install redis 
+# install redis
 RUN apt-get install -y redis-server
 
 # install blackfire
@@ -150,3 +148,4 @@ EXPOSE 80 443 3306 6379
 # set container entrypoints
 ENTRYPOINT ["/bin/bash","-c"]
 CMD ["/usr/bin/supervisord"]
+WORKDIR /var/www/html/app
